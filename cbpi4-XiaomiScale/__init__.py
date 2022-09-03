@@ -13,6 +13,8 @@ from cbpi.api.dataclasses import NotificationType
 logger = logging.getLogger(__name__)
 
 
+TIMOUT_INTERVAL = 3
+
 def extract_unit(data):
     ### Xiaomi V1 Scale ###
     measunit = data[4:6]
@@ -55,11 +57,11 @@ class BluetoothListener(scapy.BluetoothHCISocket):
         self.__sr_hci_msg(scapy.HCI_Cmd_LE_Set_Scan_Parameters(type=1))
 
     def __sr_hci_msg(self, msg):
-        return self.sr(scapy.HCI_Hdr() / scapy.HCI_Command_Hdr() / msg, timeout=0.001)
+        return self.sr(scapy.HCI_Hdr() / scapy.HCI_Command_Hdr() / msg, timeout=TIMOUT_INTERVAL)
 
     def __ble_listen(self):
         self.__sr_hci_msg(scapy.HCI_Cmd_LE_Set_Scan_Enable(enable=True, filter_dups=False))
-        adverts = self.sniff(lfilter=lambda p: scapy.HCI_LE_Meta_Advertising_Reports in p, timeout=1)
+        adverts = self.sniff(lfilter=lambda p: scapy.HCI_LE_Meta_Advertising_Reports in p, timeout=TIMOUT_INTERVAL)
         # todo change timeout to min
         self.__sr_hci_msg(scapy.HCI_Cmd_LE_Set_Scan_Enable(enable=False))
         return adverts
