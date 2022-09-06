@@ -13,7 +13,7 @@ from cbpi.api.dataclasses import NotificationType
 logger = logging.getLogger(__name__)
 
 
-TIMOUT_INTERVAL = 3
+TIMOUT_INTERVAL = 0.5
 
 def extract_unit(data):
     ### Xiaomi V1 Scale ###
