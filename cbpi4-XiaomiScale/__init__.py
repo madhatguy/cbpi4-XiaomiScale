@@ -13,7 +13,7 @@ from cbpi.api.dataclasses import NotificationType
 logger = logging.getLogger(__name__)
 
 
-TIMOUT_INTERVAL = 0.5
+TIMOUT_INTERVAL = 5
 
 def extract_unit(data):
     ### Xiaomi V1 Scale ###
@@ -57,7 +57,7 @@ class BluetoothListener(scapy.BluetoothHCISocket):
         self.__sr_hci_msg(scapy.HCI_Cmd_LE_Set_Scan_Parameters(type=1))
 
     def __sr_hci_msg(self, msg):
-        return self.sr(scapy.HCI_Hdr() / scapy.HCI_Command_Hdr() / msg, timeout=TIMOUT_INTERVAL)
+        return self.sr(scapy.HCI_Hdr() / scapy.HCI_Command_Hdr() / msg, timeout=0.001)
 
     def __ble_listen(self):
         self.__sr_hci_msg(scapy.HCI_Cmd_LE_Set_Scan_Enable(enable=True, filter_dups=False))
@@ -73,6 +73,7 @@ class BluetoothListener(scapy.BluetoothHCISocket):
                     yield scapy.hexdump(pkt[1], True).replace(" ", "").lower()[
                           4:34]  # pkt[1] is the layer containing the data
                 continue
+        return 0
 
     def read_unit(self):
         data = self.__ble_listen()
