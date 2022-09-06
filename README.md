@@ -45,8 +45,7 @@ Alternatively you can install (or clone) it from the GIT Repo. In case of update
 
 Changelog:
 
-- 04.09.22: (0.1.1) Dependency update
-- 03.09.22: (0.1.0) Initial release
+- 06.09.22: (0.2.0) Initial release
 
 ### A Word of Caution
 

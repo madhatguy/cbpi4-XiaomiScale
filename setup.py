@@ -8,7 +8,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(name='cbpi4-XiaomiScale',
-      version='0.1.1',
+      version='0.2.0',
       description='CraftBeerPi4 Xiaomi Scale integration plugin',
       author='Guy Lev',
       author_email='guyparis94@gmail.com',

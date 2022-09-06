@@ -12,7 +12,7 @@ from cbpi.api.dataclasses import NotificationType
 
 logger = logging.getLogger(__name__)
 
-TIMOUT_INTERVAL = 5
+TIMOUT_INTERVAL = 0.5
 
 
 def extract_unit(data):
@@ -176,7 +176,7 @@ class XiaomiScale(CBPiSensor):
                 else:
                     self.value = self.weight
                 self.push_update(self.value)
-            await asyncio.sleep(1)
+            await asyncio.sleep(0.5)
 
     def get_state(self):
         return dict(value=self.value)
