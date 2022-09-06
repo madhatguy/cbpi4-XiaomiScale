@@ -248,5 +248,5 @@ class FillStep(CBPiStep):
 
 
 def setup(cbpi):
-    cbpi.plugin.register("cbpi4-XiaomiScale", XiaomiScale)
+    cbpi.plugin.register("XiaomiScale", XiaomiScale)
     cbpi.plugin.register("FillStep", FillStep)
