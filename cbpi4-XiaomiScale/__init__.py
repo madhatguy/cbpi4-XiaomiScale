@@ -12,8 +12,8 @@ from cbpi.api.dataclasses import NotificationType
 
 logger = logging.getLogger(__name__)
 
+TIMOUT_INTERVAL = 5
 
-TIMOUT_INTERVAL = 0.5
 
 def extract_unit(data):
     ### Xiaomi V1 Scale ###
@@ -57,7 +57,7 @@ class BluetoothListener(scapy.BluetoothHCISocket):
         self.__sr_hci_msg(scapy.HCI_Cmd_LE_Set_Scan_Parameters(type=1))
 
     def __sr_hci_msg(self, msg):
-        return self.sr(scapy.HCI_Hdr() / scapy.HCI_Command_Hdr() / msg, timeout=TIMOUT_INTERVAL)
+        return self.sr(scapy.HCI_Hdr() / scapy.HCI_Command_Hdr() / msg, timeout=0.001)
 
     def __ble_listen(self):
         self.__sr_hci_msg(scapy.HCI_Cmd_LE_Set_Scan_Enable(enable=True, filter_dups=False))
@@ -167,13 +167,15 @@ class XiaomiScale(CBPiSensor):
 
     async def run(self):
         while self.running:
-            self.weight = float(self.bt_soc.read_info()) - self.offset
-            if self.disp_vol:
-                volume = self.convert(self.weight2kg())
-                self.value = float(volume)
-            else:
-                self.value = self.weight
-            self.push_update(self.value)
+            reading = self.bt_soc.read_info()
+            if reading is not None:
+                self.weight = float(reading) - self.offset
+                if self.disp_vol:
+                    volume = self.convert(self.weight2kg())
+                    self.value = float(volume)
+                else:
+                    self.value = self.weight
+                self.push_update(self.value)
             await asyncio.sleep(1)
 
     def get_state(self):
