@@ -75,7 +75,7 @@ class BluetoothListener(scapy.BluetoothHCISocket):
                 continue
 
     def read_unit(self):
-        data = self.ble_listen()
+        data = self.__ble_listen()
 
         for pkt in data:
             reports = pkt[scapy.HCI_LE_Meta_Advertising_Reports].reports
@@ -108,6 +108,9 @@ class XiaomiScale(CBPiSensor):
         self.scale_mac = self.props.get("Scale mac", "XX:XX:XX:XX:XX:XX")
         self.orig_offset = self.props.get("Offset", 0)
         self.gravity = float(self.props.get("Gravity", 1))
+        if self.gravity == 0:
+            logging.warning(f"{self.gravity} is an illegal gravity value, setting gravity to 1")
+            self.gravity = 1
         self.disp_unit = self.cbpi.config.get("Water volume unit", "L")
         self.disp_vol = self.props.get("Display type", "Volume") == "Volume"
 
@@ -130,7 +133,7 @@ class XiaomiScale(CBPiSensor):
     @action(key="Change Gravity", parameters=[Property.Number(label="gravity", configurable=True, default_value=1,
                                                               description="Gravity in SG")])
     async def change_gravity(self, gravity=1, **kwargs):
-        if not gravity:
+        if gravity == 0:
             logger.warning(f"Illegal gravity value, gravity remained {self.gravity}")
             return
         self.gravity = float(gravity)
@@ -248,5 +251,5 @@ class FillStep(CBPiStep):
 
 
 def setup(cbpi):
-    cbpi.plugin.register("cbpi4-XiaomiScale", XiaomiScale)
+    cbpi.plugin.register("XiaomiScale", XiaomiScale)
     cbpi.plugin.register("FillStep", FillStep)
