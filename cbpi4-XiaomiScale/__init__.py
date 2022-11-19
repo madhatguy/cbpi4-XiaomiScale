@@ -100,11 +100,14 @@ class BluetoothListener(scapy.BluetoothHCISocket):
              Property.Number(label="Gravity", configurable=True, default_value=1.000,
                              description="The Gravity of the liquid."),
              Property.Select(label="Display type", options=["Volume", "Weight"],
+                             description="The desired unit type to display (default=Volume)"),
+             Property.Select(label="Disable Sensor", options=["Enable", "Disable"],
                              description="The desired unit type to display (default=Volume)")])
 class XiaomiScale(CBPiSensor):
 
     def __init__(self, cbpi, id, props):
         super(XiaomiScale, self).__init__(cbpi, id, props)
+        self.enabled = self.props.get("Disable Sensor", "Enable") == "Enable"
         self.scale_mac = self.props.get("Scale mac", "XX:XX:XX:XX:XX:XX")
         self.orig_offset = self.props.get("Offset", 0)
         self.gravity = float(self.props.get("Gravity", 1))
@@ -114,11 +117,13 @@ class XiaomiScale(CBPiSensor):
         self.disp_unit = self.cbpi.config.get("Water volume unit", "L")
         self.disp_vol = self.props.get("Display type", "Volume") == "Volume"
 
-        self.bt_soc = BluetoothListener(self.scale_mac)
-        self.offset = float(self.orig_offset)
-        self.weight_unit = self.bt_soc.read_unit()
         self.weight = 0
         self.value = 0
+        self.offset = float(self.orig_offset)
+
+        if self.enabled:
+            self.bt_soc = BluetoothListener(self.scale_mac)
+            self.weight_unit = self.bt_soc.read_unit()
 
     @action(key="Tare", parameters=[])
     async def tare(self, offset=None, **kwargs):
@@ -143,7 +148,8 @@ class XiaomiScale(CBPiSensor):
     async def reset(self):
         logging.info("reset")
         self.offset = float(self.orig_offset)
-        self.bt_soc = BluetoothListener(self.scale_mac)
+        if self.enabled:
+            self.bt_soc = BluetoothListener(self.scale_mac)
 
     def get_unit(self):
         return self.weight_unit
@@ -167,15 +173,16 @@ class XiaomiScale(CBPiSensor):
 
     async def run(self):
         while self.running:
-            reading = self.bt_soc.read_info()
-            if reading is not None:
-                self.weight = float(reading) - self.offset
-                if self.disp_vol:
-                    volume = self.convert(self.weight2kg())
-                    self.value = float(volume)
-                else:
-                    self.value = self.weight
-                self.push_update(self.value)
+            if self.enabled:
+                reading = self.bt_soc.read_info()
+                if reading is not None:
+                    self.weight = float(reading) - self.offset
+                    if self.disp_vol:
+                        volume = self.convert(self.weight2kg())
+                        self.value = float(volume)
+                    else:
+                        self.value = self.weight
+                    self.push_update(self.value)
             await asyncio.sleep(0.5)
 
     def get_state(self):
