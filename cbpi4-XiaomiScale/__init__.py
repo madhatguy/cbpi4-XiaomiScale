@@ -151,6 +151,14 @@ class XiaomiScale(CBPiSensor):
         if self.enabled:
             self.bt_soc = BluetoothListener(self.scale_mac)
 
+    @action(key="Toggle State", parameters=[])
+    async def reset(self):
+        if self.enabled:
+            logging.info("Disabled")
+        else:
+            logging.info("Enabled")
+        self.enabled = not self.enabled
+
     def get_unit(self):
         return self.weight_unit
 

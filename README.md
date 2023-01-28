@@ -46,6 +46,7 @@ Alternatively you can install (or clone) it from the GIT Repo. In case of update
 Changelog:
 
 - 06.09.22: (0.2.0) Initial release
+- 28.01.23: (0.2.1) Added Toggle state (enable/disable sensorbbbbbbbbbbbbbbbbbbbbbbbbbb ) action
 
 ### A Word of Caution
 
